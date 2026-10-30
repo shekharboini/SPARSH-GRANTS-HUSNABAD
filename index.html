@@ -47,6 +47,111 @@
                 page-break-after: avoid !important;
             }
         }
+
+        /* Neumorphic application UI (screen only; report/print typography remains formal) */
+        @media screen {
+            body {
+                background: #e9eef5 !important;
+                color: #344256;
+            }
+            header.no-print {
+                background: linear-gradient(145deg, #e8edf4, #dce3ed) !important;
+                color: #26364b !important;
+                border: 0 !important;
+                box-shadow: 8px 8px 18px #c7ced8, -8px -8px 18px #ffffff !important;
+            }
+            header.no-print p, header.no-print .text-blue-200,
+            header.no-print .text-blue-300 { color: #64748b !important; }
+            header.no-print h1 {
+                background: none !important;
+                -webkit-text-fill-color: #26364b !important;
+                color: #26364b !important;
+            }
+            header.no-print button {
+                background: linear-gradient(145deg, #f8fbff, #dce4ee) !important;
+                color: #334155 !important;
+                border: 0 !important;
+                box-shadow: 5px 5px 10px #c5ccd6, -5px -5px 10px #ffffff !important;
+            }
+            body > main.no-print > div,
+            main.no-print > div.bg-white,
+            #fileUploadContainer {
+                background: #e9eef5 !important;
+                border: 0 !important;
+                border-radius: 20px !important;
+                box-shadow: 8px 8px 16px #c9d0da, -8px -8px 16px #ffffff !important;
+            }
+            main.no-print h2 { color: #334155 !important; }
+            main.no-print input:not([type=file]),
+            main.no-print select,
+            main.no-print textarea {
+                background: #e9eef5 !important;
+                color: #334155 !important;
+                border: 1px solid #e1e7ef !important;
+                border-radius: 12px !important;
+                box-shadow: inset 4px 4px 7px #cbd2dc, inset -4px -4px 7px #ffffff !important;
+            }
+            main.no-print input:focus,
+            main.no-print select:focus,
+            main.no-print textarea:focus {
+                outline: 2px solid #93a9c7 !important;
+                outline-offset: 1px;
+            }
+            main.no-print button:not(header button) {
+                border: 0 !important;
+                border-radius: 12px !important;
+                box-shadow: 5px 5px 10px #c8cfd9, -5px -5px 10px #ffffff !important;
+                transition: transform .15s ease, box-shadow .15s ease;
+            }
+            main.no-print button:not(header button):active {
+                transform: translateY(1px);
+                box-shadow: inset 3px 3px 6px #c8cfd9, inset -3px -3px 6px #ffffff !important;
+            }
+            #reportContainer {
+                border-radius: 18px;
+                border: 0 !important;
+                box-shadow: 8px 8px 18px #c9d0da, -8px -8px 18px #ffffff !important;
+            }
+        }
+
+        /* Annexure: continuous horizontal rules and centered Net amount.
+           Applied to both Proceedings and Resolution, and retained in print. */
+        .annexure-table {
+            width: 100%;
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+            table-layout: auto;
+        }
+        .annexure-table th:nth-child(7),
+        .annexure-table td:nth-child(7) {
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
+        .annexure-table tbody tr td:nth-child(7),
+        .annexure-table tbody tr td:nth-child(8) {
+            border-top: 1px solid #000 !important;
+            border-bottom: 1px solid #000 !important;
+        }
+        .annexure-table tbody tr:last-child td:nth-child(7),
+        .annexure-table tbody tr:last-child td:nth-child(8) {
+            border-bottom: 1px solid #000 !important;
+        }
+        @media print {
+            .annexure-table {
+                border-collapse: collapse !important;
+                border-spacing: 0 !important;
+            }
+            .annexure-table th:nth-child(7),
+            .annexure-table td:nth-child(7) {
+                text-align: center !important;
+            }
+            .annexure-table tbody tr td:nth-child(7),
+            .annexure-table tbody tr td:nth-child(8) {
+                border-top: 1px solid #000 !important;
+                border-bottom: 1px solid #000 !important;
+            }
+        }
+
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-100 via-blue-50/30 to-indigo-50/20 min-h-screen text-slate-800 antialiased pb-12">
@@ -339,7 +444,7 @@
             <!-- Embedded Annexure Table -->
             <div class="my-1">
                 <p class="text-center font-bold text-[9pt] uppercase underline mb-0.5">Annexure</p>
-                <table class="w-full text-[8.5pt]">
+                <table class="w-full text-[8.5pt] annexure-table">
                     <thead>
                         <tr class="bg-gray-50 font-bold">
                             <th style="width: 60px;">Category</th>
@@ -462,7 +567,7 @@
                 <!-- Annexure Table -->
                 <div class="my-2">
                     <p class="text-center font-bold text-xs underline mb-1">Annexure</p>
-                    <table class="w-full text-xs">
+                    <table class="w-full text-xs annexure-table">
                         <thead>
                             <tr class="bg-gray-100 font-bold">
                                 <th style="width: 70px;">Category</th>
@@ -1401,5 +1506,83 @@
             `;
         }
     </script>
+
+<script>
+// Editable utilisation figures shared by every report.
+(function () {
+  const fields = [
+    ['rptGen','genSanction'], ['rptSC','scSanction'], ['rptST','stSanction'],
+    ['rptGenAlready','genAlready'], ['rptSCAlready','scAlready'], ['rptSTAlready','stAlready'],
+    ['rptGenPresent','genPresent'], ['rptSCPresent','scPresent'], ['rptSTPresent','stPresent']
+  ];
+  const fieldByClass = Object.fromEntries(fields.map(([cls,key]) => [cls,key]));
+  const fmt = n => Math.max(0, Math.round(Number(n) || 0)).toLocaleString('en-IN');
+  const read = el => Math.max(0, Number(String(el.innerText || '0').replace(/[^0-9.-]/g,'')) || 0);
+
+  function getCanonical(key) {
+    const cls = fields.find(([,k]) => k === key)[0];
+    const el = document.querySelector('#report1 .' + cls);
+    return el ? read(el) : 0;
+  }
+  function writeClass(cls, value, except) {
+    document.querySelectorAll('.' + cls).forEach(el => {
+      if (el !== except) el.innerText = fmt(value);
+    });
+  }
+  window.autoCalculate = function () {
+    const vals = {};
+    fields.forEach(([cls,key]) => { vals[key] = getCanonical(key); });
+    ['gen','sc','st'].forEach(cat => {
+      const sanction = vals[cat + 'Sanction'];
+      const already = vals[cat + 'Already'];
+      const present = vals[cat + 'Present'];
+      const balance = sanction - already - present;
+      writeClass('rpt' + cat.toUpperCase(), sanction, document.querySelector('#report1 .rpt' + cat.toUpperCase()));
+      writeClass('rpt' + cat.toUpperCase() + 'Already', already, document.querySelector('#report1 .rpt' + cat.toUpperCase() + 'Already'));
+      writeClass('rpt' + cat.toUpperCase() + 'Present', present, document.querySelector('#report1 .rpt' + cat.toUpperCase() + 'Present'));
+      writeClass('rpt' + cat.toUpperCase() + 'Bal', balance);
+    });
+    const totals = {
+      sanction: vals.genSanction + vals.scSanction + vals.stSanction,
+      already: vals.genAlready + vals.scAlready + vals.stAlready,
+      present: vals.genPresent + vals.scPresent + vals.stPresent
+    };
+    const balance = totals.sanction - totals.already - totals.present;
+    writeClass('rptTotal', totals.sanction);
+    writeClass('rptTotalAlready', totals.already);
+    writeClass('rptTotalPresent', totals.present);
+    writeClass('rptTotalBal', balance);
+    document.querySelectorAll('.rptTotalWords').forEach(el => el.innerText = numberToWords(totals.sanction));
+    const words = {gen:'rptGenWords', sc:'rptScWords', st:'rptStWords'};
+    Object.entries(words).forEach(([cat,id]) => {
+      const el=document.getElementById(id);
+      if(el) el.innerText=numberToWords(vals[cat+'Present']);
+    });
+  };
+
+  function initialiseEditableAmounts() {
+    fields.forEach(([cls]) => document.querySelectorAll('.' + cls).forEach(el => {
+      el.setAttribute('contenteditable','true');
+      el.setAttribute('spellcheck','false');
+      el.classList.add('editable');
+      el.title = 'Click and edit amount; all reports update automatically';
+    }));
+    document.addEventListener('input', event => {
+      const el = event.target;
+      if (!el || !el.isContentEditable) return;
+      const key = fields.map(([cls,key]) => el.classList.contains(cls) ? key : null).find(Boolean);
+      if (!key) return;
+      const cls = fields.find(([,k]) => k === key)[0];
+      const canonical = document.querySelector('#report1 .' + cls);
+      if (canonical && canonical !== el) canonical.innerText = String(read(el));
+      window.autoCalculate();
+    });
+    window.autoCalculate();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialiseEditableAmounts);
+  else initialiseEditableAmounts();
+})();
+</script>
+
 </body>
 </html>
